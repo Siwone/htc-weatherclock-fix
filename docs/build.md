@@ -88,3 +88,20 @@ adb pull /sdcard/ui.xml .
 adb shell input tap 600 600
 adb shell dumpsys activity activities | grep topResumedActivity
 ```
+
+## 7. 发版到 GitHub
+
+APK 不进 git 历史，走 Release 附件。仓库 `.gitignore` 已经排除 `*.apk`。
+
+```bash
+gh release create v1.2.29 HTC-WeatherClock-v1.2.29-xxx.apk \
+  --title "v1.2.29 · 改动摘要" \
+  --notes-file notes.md
+```
+
+几点经验：
+
+- 37 MB 附件上传要十几分钟，命令别设短超时。中途被打断的话，Release 会停在 `Draft`，但**附件通常已经传完**，用 `gh release edit v1.2.29 --draft=false` 直接发布即可，不用重传。
+- 部分网络环境访问 `github.com` 的 releases 下载域名会超时（`curl` 返回 `http=000`），走代理即可：`HTTPS_PROXY=http://127.0.0.1:7897`。
+- README 里的下载入口指向 `/releases/latest`，发新版不用改链接。
+- 想重发同一个 tag 时先 `gh release delete v1.2.29 --cleanup-tag`，否则会报 tag 已存在。
